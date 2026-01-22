@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Deep Analysis</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Left Panel: Document Viewer -->
+        <div class="pdf-panel">
+            <div class="pdf-header">
+                <h2>📄 Document Viewer</h2>
+                <div class="upload-area">
+                    <label class="btn btn-primary">
+                        <input type="file" id="file-upload" accept=".pdf,.png,.jpg,.jpeg,.bmp,.tiff,.tif,.gif,.webp,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.md" style="display:none">
+                        <span id="upload-text">📤 Upload File</span>
+                    </label>
+                    <button class="btn btn-danger hidden" id="clear-btn">🗑️ Clear</button>
+                </div>
+                <div class="file-info hidden" id="file-info"></div>
+                <div class="controls hidden" id="pdf-controls">
+                    <div class="page-controls">
+                        <button class="ctrl-btn" id="prev-page">◀</button>
+                        <span id="page-info">Page 1 / 1</span>
+                        <button class="ctrl-btn" id="next-page">▶</button>
+                    </div>
+                    <div class="zoom-controls">
+                        <button class="ctrl-btn" id="zoom-out">−</button>
+                        <span id="zoom-info">67%</span>
+                        <button class="ctrl-btn" id="zoom-in">+</button>
+                        <button class="ctrl-btn" id="zoom-reset">⟲</button>
+                    </div>
+                </div>
+            </div>
+            <div class="pdf-viewer" id="pdf-viewer">
+                <div class="empty-state">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                        <polyline points="10 9 9 9 8 9"/>
+                    </svg>
+                    <p>Upload a document to view</p>
+                    <p style="font-size: 12px; margin-top: 8px;">Supports: PDF, Images, Office (DOC/PPT/XLS), Text</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel: Analysis & Chat -->
+        <div class="deepdoc-panel">
+            <div class="deepdoc-header">
+                <h2>🔍 Document Intelligence</h2>
+                
+                <!-- Tab Navigation -->
+                <div class="tab-container">
+                    <button class="tab-btn active" data-tab="analysis">📊 Analysis</button>
+                    <button class="tab-btn" data-tab="chatbot">💬 Chatbot</button>
+                </div>
+
+                <!-- Analysis Tab Header -->
+                <div id="analysis-header" class="tab-content active">
+                    <div class="header-actions">
+                        <button class="btn btn-secondary" id="settings-toggle">⚙️ Settings</button>
+                        <button class="btn btn-warning" id="parse-btn" disabled>🔄 Parse Document</button>
+                        <button class="btn btn-success hidden" id="query-btn" disabled>🔎 Query</button>
+                    </div>
+                    
+                    <!-- Settings Panel -->
+                    <div class="settings-panel hidden" id="settings-panel">
+                        <div>
+                            <label>Method</label>
+                            <select id="method-select">
+                                <option value="ppstructurev3">PPStructure V3</option>
+                                <option value="paddleocrvl" selected>PaddleOCR VL</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Language</label>
+                            <select id="lang-select">
+                                <option value="vi">Vietnamese</option>
+                                <option value="en">English</option>
+                                <option value="ch">Chinese</option>
+                            </select>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="use-vl-backend">
+                            <label for="use-vl-backend">Use VL Backend</label>
+                        </div>
+                        <div id="vl-settings" class="hidden">
+                            <div>
+                                <label>VL Backend</label>
+                                <select id="vl-backend-select">
+                                    <option value="vllm-server">vLLM Server</option>
+                                    <option value="sglang-server">SGLang Server</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>Server URL</label>
+                                <input type="text" id="vl-server-url" value="http://127.0.0.1:8118/v1">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Query Panel -->
+                    <div class="query-panel hidden" id="query-panel">
+                        <div>
+                            <label>Search Query</label>
+                            <input type="text" id="query-input" placeholder="Enter search keywords...">
+                        </div>
+                        <div>
+                            <label>Filter by Type</label>
+                            <div class="filter-types">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" value="text" class="type-filter" checked>
+                                    Text
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" value="table" class="type-filter" checked>
+                                    Table
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" value="figure" class="type-filter" checked>
+                                    Figure
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chatbot Tab Header -->
+                <div id="chatbot-header" class="tab-content">
+                    <div class="header-actions">
+                        <button class="btn btn-secondary" id="clear-chat-btn">🗑️ Clear Chat</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analysis Content -->
+            <div id="analysis-content" class="deepdoc-content tab-content active">
+                <div class="empty-state">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="m21 21-4.35-4.35"/>
+                    </svg>
+                    <p>Upload and parse a document</p>
+                    <p style="font-size: 12px; margin-top: 8px;">Step 1: Parse → Step 2: Query</p>
+                </div>
+            </div>
+
+            <!-- Chatbot Content -->
+            <div id="chatbot-content" class="tab-content">
+                <div class="chat-container">
+                    <div class="chat-messages" id="chat-messages">
+                        <div class="chat-message assistant">
+                            <div class="chat-avatar">🤖</div>
+                            <div class="chat-bubble">
+                                Hello! I'm your document assistant. Upload and parse a document, then ask me questions about it.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chat-input-area">
+                        <div class="chat-input-container">
+                            <textarea 
+                                class="chat-input" 
+                                id="chat-input" 
+                                placeholder="Ask about the document..."
+                                rows="1"
+                                disabled
+                            ></textarea>
+                            <button class="chat-send-btn" id="chat-send-btn" disabled>Send</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/pdf-viewer.js"></script>
+    <script src="/static/js/deepdoc.js"></script>
+    <script src="/static/js/chatbot.js"></script>
+    <script src="/static/js/main.js"></script>
+</body>
+</html>
