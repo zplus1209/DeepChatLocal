@@ -1,4 +1,5 @@
 import json
+import uuid
 from typing import Any, Union, List, Dict
 
 from loguru import logger
@@ -91,6 +92,7 @@ class MultiRetriever:
         try:
             summary_docs = []
             doc_ids = []
+            # doc_ids = [str(uuid.uuid4()) for _ in original_contents]
             
             for idx, (summary, original_content) in enumerate(zip(summaries, original_contents)):
                 if isinstance(summary, Dict):
@@ -116,7 +118,7 @@ class MultiRetriever:
                 logger.info()
                 return
             
-            self.vectorstore.add_documents(documents=summary_docs, ids=doc_ids)
+            self.vectorstore.add_documents(documents=summary_docs)
             
             doc_pairs = list(zip(doc_ids, original_contents))
             self.docstore.mset(doc_pairs)

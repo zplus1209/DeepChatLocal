@@ -143,7 +143,7 @@ const DeepDoc = {
         let html = `
             <div class="info-banner">
                 <strong>${chunks.length}</strong>
-                elements found – click to highlight PDF
+                elements found – click to highlight
             </div>
         `;
 
@@ -170,7 +170,7 @@ const DeepDoc = {
             const body =
                 chunk.type === 'table'
                     ? cleaned                  // table → raw HTML
-                    : this.escapeHtml(cleaned.replace(/<[^>]+>/g, '')); // text → escape
+                    : this.escapeHtml(cleaned); // text → escape
 
             html += `
                 <div class="element-card ${selected ? 'selected' : ''}"

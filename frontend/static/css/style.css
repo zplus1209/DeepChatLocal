@@ -5,7 +5,6 @@
 }
 
 :root {
-    /* New Color Palette - Blue Theme */
     --primary: hsl(220, 65%, 55%);
     --primary-shade: hsl(220, 65%, 45%);
     --secondary: hsl(220, 30%, 20%);
@@ -14,19 +13,34 @@
     --background: hsl(220, 20%, 8%);
     --heading: hsl(0, 0%, 100%);
     --body-text: hsl(0, 0%, 85%);
-    
-    /* Additional UI Colors */
     --surface: hsl(220, 20%, 12%);
     --surface-light: hsl(220, 20%, 16%);
     --border: hsl(220, 20%, 25%);
     --shadow: rgba(0, 0, 0, 0.3);
 }
 
+/* Light Theme */
+body[data-theme="light"] {
+    --primary: hsl(220, 65%, 45%);
+    --primary-shade: hsl(220, 65%, 35%);
+    --secondary: hsl(220, 10%, 95%);
+    --accent: hsl(220, 65%, 50%);
+    --complementary: hsl(40, 90%, 50%);
+    --background: hsl(0, 0%, 98%);
+    --heading: hsl(0, 0%, 10%);
+    --body-text: hsl(0, 0%, 20%);
+    --surface: hsl(0, 0%, 100%);
+    --surface-light: hsl(0, 0%, 97%);
+    --border: hsl(220, 10%, 85%);
+    --shadow: rgba(0, 0, 0, 0.1);
+}
+
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif;
     background: var(--background);
     color: var(--body-text);
     overflow: hidden;
+    transition: background 0.3s, color 0.3s;
 }
 
 .container {
@@ -43,21 +57,46 @@ body {
     background: var(--surface);
     display: flex;
     flex-direction: column;
-    border-radius: 12px 0 0 12px;
-    overflow: hidden;
+    border-right: 1px solid var(--border);
 }
 
 .pdf-header {
     padding: 20px;
     border-bottom: 1px solid var(--border);
-    background: linear-gradient(135deg, var(--secondary) 0%, var(--surface) 100%);
+    background: var(--surface);
+}
+
+.header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
 }
 
 .pdf-header h2 {
     font-size: 18px;
-    margin-bottom: 15px;
     color: var(--heading);
     font-weight: 600;
+}
+
+.theme-toggle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--surface-light);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    transition: all 0.3s;
+}
+
+.theme-toggle:hover {
+    background: var(--primary);
+    border-color: var(--primary);
+    transform: scale(1.1);
 }
 
 .upload-area {
@@ -83,18 +122,17 @@ body {
 
 .btn-primary {
     background: var(--primary);
-    color: var(--heading);
+    color: white;
 }
 
 .btn-primary:hover {
     background: var(--primary-shade);
     transform: translateY(-1px);
-    box-shadow: 0 4px 8px var(--shadow);
 }
 
 .btn-danger {
     background: hsl(0, 65%, 50%);
-    color: var(--heading);
+    color: white;
 }
 
 .btn-danger:hover {
@@ -112,7 +150,7 @@ body {
 
 .btn-success {
     background: hsl(150, 60%, 45%);
-    color: var(--heading);
+    color: white;
 }
 
 .btn-success:hover {
@@ -120,13 +158,13 @@ body {
 }
 
 .btn-secondary {
-    background: var(--secondary);
+    background: var(--surface-light);
     color: var(--body-text);
     border: 1px solid var(--border);
 }
 
 .btn-secondary:hover {
-    background: var(--surface-light);
+    background: var(--secondary);
 }
 
 .btn:disabled {
@@ -233,14 +271,12 @@ body {
     background: var(--surface);
     display: flex;
     flex-direction: column;
-    border-radius: 0 12px 12px 0;
-    overflow: hidden;
 }
 
 .deepdoc-header {
     padding: 20px;
     border-bottom: 1px solid var(--border);
-    background: linear-gradient(135deg, var(--secondary) 0%, var(--surface) 100%);
+    background: var(--surface);
 }
 
 .deepdoc-header h2 {
@@ -250,7 +286,6 @@ body {
     font-weight: 600;
 }
 
-/* TAB SYSTEM */
 .tab-container {
     display: flex;
     gap: 10px;
@@ -345,61 +380,24 @@ body {
 
 .query-panel {
     margin-top: 15px;
-    padding: 15px;
-    background: var(--surface-light);
-    border: 1px solid var(--border);
-    border-radius: 10px;
 }
 
-.query-panel label {
-    display: block;
-    margin-bottom: 5px;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--body-text);
-}
-
-.query-panel input[type="text"] {
+.search-input {
     width: 100%;
-    padding: 10px 14px;
+    padding: 12px 16px;
     border: 1px solid var(--border);
     border-radius: 8px;
-    margin-bottom: 15px;
     font-size: 14px;
     background: var(--background);
     color: var(--body-text);
     transition: border-color 0.2s;
 }
 
-.query-panel input[type="text"]:focus {
+.search-input:focus {
     outline: none;
     border-color: var(--primary);
 }
 
-.filter-types {
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
-}
-
-.checkbox-label {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 13px;
-    cursor: pointer;
-    color: var(--body-text);
-}
-
-.checkbox-label input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
-    cursor: pointer;
-}
-
-/* ========================================
-   CONTENT AREA
-======================================== */
 .deepdoc-content {
     flex: 1;
     overflow-y: auto;
@@ -407,37 +405,14 @@ body {
 }
 
 .info-banner {
-    background: linear-gradient(135deg, var(--primary-shade) 0%, var(--secondary) 100%);
+    background: linear-gradient(135deg, var(--primary-shade) 0%, var(--primary) 100%);
     border: 1px solid var(--primary);
     padding: 14px;
     border-radius: 10px;
     margin-bottom: 20px;
     font-size: 13px;
-    color: var(--heading);
+    color: white;
     box-shadow: 0 2px 4px var(--shadow);
-}
-
-.stats-bar {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 20px;
-    padding: 12px;
-    background: var(--surface-light);
-    border-radius: 10px;
-    font-size: 13px;
-    flex-wrap: wrap;
-    border: 1px solid var(--border);
-}
-
-.stat-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--body-text);
-}
-
-.stat-item strong {
-    color: var(--accent);
 }
 
 .element-card {
@@ -453,15 +428,21 @@ body {
 
 .element-card:hover {
     border-color: var(--primary);
-    background: var(--secondary);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px var(--shadow);
 }
 
 .element-card.selected {
     border-color: var(--primary);
-    background: linear-gradient(135deg, var(--primary-shade) 0%, var(--secondary) 100%);
-    box-shadow: 0 6px 16px rgba(66, 135, 245, 0.3);
+    border-width: 2px;
+    background: var(--primary);
+    color: white;
+}
+
+.element-card.selected .element-type,
+.element-card.selected .element-page,
+.element-card.selected .element-content {
+    color: white;
 }
 
 .element-header {
@@ -471,148 +452,54 @@ body {
     margin-bottom: 12px;
 }
 
-.element-id {
-    font-family: 'Courier New', monospace;
-    font-size: 11px;
-    background: var(--background);
-    padding: 4px 8px;
-    border-radius: 6px;
-    color: var(--accent);
-    border: 1px solid var(--border);
-}
-
 .element-type {
     font-size: 11px;
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-weight: 600;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    color: var(--body-text);
-    text-transform: lowercase;
-    letter-spacing: 0.2px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 2px solid currentColor;
 }
 
-/* ===== TABLE ===== */
 .type-table {
-    background: var(--primary);
-    color: var(--heading);
-    border-color: var(--primary);
+    background: linear-gradient(135deg, #4287f5 0%, #3a75d9 100%);
+    color: white;
+    border-color: #4287f5;
 }
 
-/* ===== TEXT / TITLE / PARAGRAPH ===== */
 .type-text,
-.type-title,
-.type-doc_title,
-.type-section,
-.type-paragraph {
-    background: var(--accent);
-    color: var(--secondary);
-    border-color: var(--accent);
+.type-paragraph,
+.type-title {
+    background: linear-gradient(135deg, #42f5a1 0%, #38d98e 100%);
+    color: white;
+    border-color: #42f5a1;
 }
 
-/* ===== IMAGE / FIGURE ===== */
-.type-image,
 .type-figure,
-.type-vision_image {
-    background: hsl(150, 60%, 45%);
-    color: var(--heading);
-    border-color: hsl(150, 60%, 45%);
+.type-image {
+    background: linear-gradient(135deg, #f5a442 0%, #d98e38 100%);
+    color: white;
+    border-color: #f5a442;
 }
 
-/* ===== FOOTNOTE / CAPTION ===== */
-.type-footnote,
-.type-vision_footnote,
-.type-caption {
-    background: var(--complementary);
-    color: var(--secondary);
-    border-color: var(--complementary);
-}
-
-/* ===== HEADER / META ===== */
-.type-header,
-.type-footer,
-.type-page_header,
-.type-page_footer {
-    background: var(--secondary);
-    color: var(--body-text);
-    border-color: var(--border);
-}
-
-/* ===== FALLBACK – MỌI TYPE LẠ ===== */
-.element-type[class*="type-"] {
-    box-shadow: inset 0 0 0 1px var(--border);
-}
-
-/* ========================================
-   ELEMENT CONTENT – FIX TEXT + IMAGE + TABLE
-======================================== */
-
-.element-content {
-    margin: 12px 0;
-    padding: 10px 12px;
-    font-size: 14px;
-    line-height: 1.65;
-    color: var(--body-text);
-    background: var(--background);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    white-space: pre-wrap;
-    word-break: break-word;
-}
-
-/* ===== FIX TEXT BỊ DÍNH HTML RÁC ===== */
-.element-content a,
-.element-content a:visited {
-    color: inherit;
-    text-decoration: none;
-    pointer-events: none;
-}
-
-.element-content a[id] {
-    display: none;
-}
-
-/* ===== IMAGE CONTENT ===== */
-.element-content img {
-    max-width: 100%;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    margin-top: 8px;
-}
-
-/* ===== TABLE CONTENT ===== */
-.element-content table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-    background: var(--surface-light);
-}
-
-.element-content th,
-.element-content td {
-    border: 1px solid var(--border);
-    padding: 6px 8px;
-    text-align: left;
-}
-
-.element-content th {
-    background: var(--secondary);
-    color: var(--heading);
-}
-
-.element-footer {
-    border-top: 1px solid var(--border);
-    padding-top: 10px;
-    margin-top: 10px;
-    display: flex;
-    justify-content: space-between;
+.element-page {
     font-size: 11px;
     color: var(--body-text);
     opacity: 0.7;
+}
+
+.element-content {
+    margin: 12px 0;
+    padding: 12px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--body-text);
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    max-height: 200px;
+    overflow-y: auto;
 }
 
 .element-image {
@@ -624,7 +511,7 @@ body {
 }
 
 /* ========================================
-   CHATBOT STYLES
+   CHATBOT
 ======================================== */
 .chat-container {
     display: flex;
@@ -692,7 +579,7 @@ body {
 
 .chat-message.user .chat-bubble {
     background: var(--primary);
-    color: var(--heading);
+    color: white;
     border-radius: 12px 12px 0 12px;
 }
 
@@ -734,7 +621,7 @@ body {
 .chat-send-btn {
     padding: 12px 24px;
     background: var(--primary);
-    color: var(--heading);
+    color: white;
     border: none;
     border-radius: 8px;
     cursor: pointer;
@@ -744,7 +631,6 @@ body {
 
 .chat-send-btn:hover:not(:disabled) {
     background: var(--primary-shade);
-    transform: translateY(-1px);
 }
 
 .chat-send-btn:disabled {
@@ -753,7 +639,7 @@ body {
 }
 
 /* ========================================
-   UTILITY CLASSES
+   UTILITY
 ======================================== */
 .loading {
     display: inline-block;
@@ -773,7 +659,6 @@ body {
     display: none !important;
 }
 
-/* Scrollbar styling */
 ::-webkit-scrollbar {
     width: 10px;
     height: 10px;
@@ -785,7 +670,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: var(--secondary);
+    background: var(--border);
     border-radius: 5px;
 }
 
@@ -793,9 +678,19 @@ body {
     background: var(--primary);
 }
 
-/* Page info and zoom info styling */
 #page-info, #zoom-info {
     color: var(--body-text);
     font-weight: 500;
     font-size: 13px;
+}
+
+.text-viewer {
+    white-space: pre-wrap;
+    padding: 16px;
+    font-size: 14px;
+    max-height: 80vh;
+    overflow: auto;
+    background: var(--surface-light);
+    border-radius: 8px;
+    color: var(--body-text);
 }

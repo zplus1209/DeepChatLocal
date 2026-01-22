@@ -1,6 +1,7 @@
 import json
 import traceback
 from pathlib import Path
+from asyncio import run as asyncio_run
 
 from flask import (
     Flask,
@@ -13,12 +14,17 @@ from flask_cors import CORS
 from werkzeug.utils import secure_filename
 
 from parser.paddleocr_parser import PaddleOCRParser
+from src.summarizer import ContentSummarizer
+from src.multi_retriever import MultiRetriever
+from src.rag.core import MultimodalRAG
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 UPLOAD_FOLDER = BASE_DIR / "data/uploads"
 OUTPUT_FOLDER = BASE_DIR / "output"
 FRONTEND_DIR = BASE_DIR / "frontend"
+PDF_PREVIEW_FOLDER = BASE_DIR / "data/pdfs/libreoffice_output"
+PDF_PREVIEW_FOLDER.mkdir(parents=True, exist_ok=True)
 
 ALLOWED_EXTENSIONS = {
     # PDF
@@ -46,8 +52,53 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['OUTPUT_FOLDER'] = OUTPUT_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024 
 
-# Initialize parser once
 parser = PaddleOCRParser()
+summarizer = ContentSummarizer()
+multi_retriever = MultiRetriever()
+rag_chain = MultimodalRAG(multi_retriever)
+
+async def indexing(chunks, output_path):
+    text_elements = []
+    table_elements = []
+    image_elements = []
+
+    for c in chunks:
+        if c["type"] == "text":
+            text_elements.append(c)
+        elif c["type"] == "table":
+            table_elements.append(c)
+        elif c["type"] == "image":
+            image_elements.append(c)
+            
+
+    text_summaries, final_summary = await summarizer.asummarize_documents(
+        text_elements=text_elements,
+        output_path=output_path,
+        detail=1,
+        summarize_recursively=True,
+    )
+    
+    table_summaries = await summarizer.asummarize_table_elements(
+        table_elements,
+        output_path=output_path,
+    )
+
+    image_summaries = await summarizer.asummarize_image_elements(
+        image_elements
+    )
+    
+    multi_retriever.add_all_documents(
+        text_summaries, text_elements,
+        table_summaries, table_elements,
+        image_summaries, image_elements
+    )
+    
+    return {
+        "text": len(text_summaries),
+        "table": len(table_summaries),
+        "image": len(image_summaries),
+        "final_summary": final_summary
+    }
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -114,13 +165,14 @@ def upload_file():
 @app.route('/api/parse-document', methods=['POST'])
 def parse_document():
     """Parse document with PaddleOCR - Step 1: Analysis"""
-    try:
+    try:        
         data = request.get_json()
         
         if not data or 'filename' not in data:
             return jsonify({'error': 'No filename provided'}), 400
         
         filename = data['filename']
+        file_stem = Path(filename).stem
         method = data.get('method', 'paddleocrvl')
         lang = data.get('lang', 'vi')
         
@@ -133,11 +185,13 @@ def parse_document():
         if not filepath.exists():
             return jsonify({'error': f'File not found: {filename}'}), 404
         
+        output_path = app.config['OUTPUT_FOLDER'] / method / file_stem
+        
         # Prepare kwargs
         parse_kwargs = {
             'method': method,
             'lang': lang,
-            'output_path': app.config['OUTPUT_FOLDER']
+            'output_path': output_path
         }
         
         # Add VL recognition settings if provided
@@ -149,6 +203,11 @@ def parse_document():
         print(f"Parsing {filename} with method {method}...")
         result = parser.parse_document(str(filepath), **parse_kwargs)
         
+        print(result.get("chunks", []))
+        chunks = result.get("chunks", [])
+        type_chunks = chunks[1:4]
+        summary_info = asyncio_run(indexing(type_chunks, output_path))
+        
         # Return result with metadata
         return jsonify({
             'success': True,
@@ -157,7 +216,8 @@ def parse_document():
                 'chunks': result.get('chunks', []),
                 'total_chunks': len(result.get('chunks', [])),
                 'method': method,
-                'lang': lang
+                'lang': lang,
+                'rag_index': summary_info
             },
             'message': f'Document parsed successfully with {method}'
         })
@@ -231,7 +291,7 @@ def deepdoc_query():
 @app.route('/api/chat', methods=['POST'])
 def chat():
     """Chatbot endpoint - Answer questions about the document"""
-    try:
+    try:        
         data = request.get_json()
         
         if not data or 'filename' not in data or 'message' not in data:
@@ -241,36 +301,12 @@ def chat():
         message = data['message']
         history = data.get('history', [])
         
-        # Get cached parsing result
-        file_stem = Path(filename).stem
-        method = data.get('method', 'paddleocrvl')
+        print(f"Data: {data}")
+        result = rag_chain.invoke(message)
+        response = result.get("answer", "")
+        references = result.get("context", {})
         
-        json_file = app.config['OUTPUT_FOLDER'] / method / file_stem / f"{file_stem}_content_list.json"
-        
-        if not json_file.exists():
-            return jsonify({'error': 'Document not parsed yet'}), 404
-        
-        with open(json_file, 'r', encoding='utf-8') as f:
-            chunks = json.load(f)
-        
-        # Simple keyword-based search for demo
-        # In production, use RAG with embeddings
-        query_lower = message.lower()
-        relevant_chunks = [
-            c for c in chunks 
-            if query_lower in c.get('markdown', '').lower()
-        ][:3]  # Top 3 matches
-        
-        if relevant_chunks:
-            context = "\n\n".join([
-                f"[{c['type']}] {c['markdown'][:200]}..." 
-                for c in relevant_chunks
-            ])
-            response = f"Based on the document, here's what I found:\n\n{context}\n\nI found {len(relevant_chunks)} relevant sections."
-            references = [c['id'] for c in relevant_chunks]
-        else:
-            response = "I couldn't find relevant information in the document about your question. Could you try rephrasing or ask something else?"
-            references = []
+        print(result)
         
         return jsonify({
             'success': True,
@@ -340,6 +376,26 @@ def serve_image(filepath):
     except Exception as e:
         print(f"Error serving image: {str(e)}")
         return jsonify({'error': f'Failed to serve image: {str(e)}'}), 500
+
+@app.route("/api/preview/pdf/<path:filename>", methods=["GET"])
+def preview_pdf(filename):
+    """Serve converted PDF for preview"""
+    try:
+        pdf_path = PDF_PREVIEW_FOLDER / filename
+
+        if not pdf_path.exists():
+            return jsonify({"error": "PDF preview not found"}), 404
+
+        return send_from_directory(
+            pdf_path.parent,
+            pdf_path.name,
+            mimetype="application/pdf",
+            as_attachment=False
+        )
+
+    except Exception as e:
+        print("Error serving preview PDF:", e)
+        return jsonify({"error": str(e)}), 500
     
 @app.route('/api/list-files', methods=['GET'])
 def list_files():

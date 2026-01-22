@@ -150,7 +150,7 @@ class MultimodalRAG:
 
         return results
 
-    def _build_rag(self, grader: bool = True):
+    def _build_rag(self, grader: bool = False):
         
         multimodal_rag = (
             {
@@ -167,7 +167,7 @@ class MultimodalRAG:
             | RunnableLambda(lambda q: self.retriever.invoke(q, grader=grader))
             | RunnableLambda(self._split_image_text_types)
         )
-                
+        
         multimodal_rag = RunnablePassthrough.assign(context=retrieve_docs) \
             .assign(answer=multimodal_rag)
         
