@@ -1,0 +1,11 @@
+__pycache__
+*.pyc
+*.pyo
+.env
+venv
+.venv
+*.egg-info
+.pytest_cache
+qdrant_db
+chroma_db
+milvus_local.db
