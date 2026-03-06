@@ -1,0 +1,14 @@
+# Dùng thay thế docker-compose.yml khi có NVIDIA GPU
+# docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d
+
+version: "3.9"
+
+services:
+  ollama:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]

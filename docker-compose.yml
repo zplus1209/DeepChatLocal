@@ -1,0 +1,60 @@
+version: "3.9"
+
+services:
+
+  # ── Ollama (local LLM) ────────────────────────────────────────────────────
+  ollama:
+    image: ollama/ollama:latest
+    container_name: deepchat-ollama
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    restart: unless-stopped
+    # Uncomment for GPU support:
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+
+  # ── Backend (FastAPI + RAG) ───────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: deepchat-backend
+    env_file: ./backend/.env
+    environment:
+      LLM_BASE_URL: http://ollama:11434
+      QDRANT_PATH: /data/qdrant_db
+    volumes:
+      - app_data:/data
+    depends_on:
+      - ollama
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # ── Frontend (React + Nginx) ──────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: deepchat-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  ollama_data:
+  app_data:
