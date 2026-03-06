@@ -14,7 +14,7 @@ const timeAgo = (ts) => {
 
 export default function Sidebar({
   conversations, activeId, onSelect, onNew, onDelete,
-  onUpload, dbStatus
+  onUpload, onUploadMany, dbStatus
 }) {
   const [tab, setTab] = useState('chats')  // 'chats' | 'files'
   const [search, setSearch] = useState('')
@@ -100,7 +100,7 @@ export default function Sidebar({
         )}
 
         {tab === 'files' && (
-          <FilePanel onUpload={onUpload} />
+          <FilePanel onUpload={onUpload} onUploadMany={onUploadMany} />
         )}
       </div>
 
@@ -147,7 +147,7 @@ function ConvItem({ conv, active, onSelect, onDelete }) {
   )
 }
 
-function FilePanel({ onUpload }) {
+function FilePanel({ onUpload, onUploadMany }) {
   const [files, setFiles] = useState([])
   const [uploading, setUploading] = useState(false)
   const [progress, setProgress] = useState(0)
@@ -160,16 +160,27 @@ function FilePanel({ onUpload }) {
 
   const uploadFiles = async (fileList) => {
     setUploading(true)
-    for (const f of fileList) {
-      try {
-        await onUpload(f, p => setProgress(p))
-        setFiles(prev => [...prev, { name: f.name, size: f.size, uploadedAt: Date.now() }])
-      } catch {
-        // handled upstream
+    try {
+      if (onUploadMany && fileList.length > 1) {
+        await onUploadMany(fileList, p => setProgress(p))
+        setFiles(prev => [
+          ...prev,
+          ...fileList.map(f => ({ name: f.name, size: f.size, uploadedAt: Date.now() })),
+        ])
+      } else {
+        for (const f of fileList) {
+          try {
+            await onUpload(f, p => setProgress(p))
+            setFiles(prev => [...prev, { name: f.name, size: f.size, uploadedAt: Date.now() }])
+          } catch {
+            // handled upstream
+          }
+        }
       }
+    } finally {
+      setUploading(false)
+      setProgress(0)
     }
-    setUploading(false)
-    setProgress(0)
   }
 
   const handleInput = async (e) => {

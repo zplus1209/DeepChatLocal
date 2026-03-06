@@ -22,6 +22,16 @@ export const api = {
     }).then(r => r.data)
   },
 
+
+  ingestFiles: (files, onProgress) => {
+    const form = new FormData()
+    files.forEach(f => form.append('files', f))
+    return http.post('/ingest/files', form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      onUploadProgress: e => onProgress && onProgress(Math.round(e.loaded * 100 / e.total)),
+    }).then(r => r.data)
+  },
+
   deleteDocuments: (ids) =>
     http.delete('/documents', { data: { ids } }).then(r => r.data),
 }
