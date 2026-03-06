@@ -39,6 +39,17 @@ export default function App() {
     }
   }, [showToast])
 
+  const handleUploadMany = useCallback(async (files, onProgress) => {
+    try {
+      const res = await api.ingestFiles(files, onProgress)
+      showToast(`Đã nhập ${res.total_ids} đoạn từ ${res.total_files} file`)
+      return res
+    } catch (err) {
+      showToast(`Lỗi tải nhiều file: ${err.response?.data?.detail || err.message}`, 'error')
+      throw err
+    }
+  }, [showToast])
+
   return (
     <div className="flex h-screen overflow-hidden bg-surface-950 text-surface-50">
       <Sidebar
@@ -48,6 +59,7 @@ export default function App() {
         onNew={newChat}
         onDelete={deleteConversation}
         onUpload={handleUpload}
+        onUploadMany={handleUploadMany}
         dbStatus={dbStatus}
       />
 

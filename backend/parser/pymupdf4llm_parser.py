@@ -147,94 +147,60 @@ class PyMuPDF4LLMParser(Parser):
             to_md_kwargs.pop("ocr_language", None)
             content_list = pymupdf4llm.to_markdown(str(self.file_path), **to_md_kwargs)
 
-        pages: List[Page] = []
+        pages_by_number: Dict[int, Page] = {}
         for i, item in enumerate(content_list, 1):
-            pno_0 = item.get("metadata", {}).get("page_number", i) - 1
-            page_text = item.get("text", "")
+            pno = item.get("metadata", {}).get("page_number", i) - 1
+            page_text = self._get_page_text(item)
             boxes = sorted(item.get("page_boxes", []), key=lambda x: x["index"])
-            width, height = page_sizes.get(pno_0, (0, 0))
+            width, height = page_sizes.get(pno, (0, 0))
 
-            items: List[PageItem] = []
+            page_items: List[PageItem] = []
             for gtype, data in self._group_boxes(boxes):
                 if gtype == "text_group":
                     text_group = self._build_text_group(data, page_text)
-                    items.append(text_group)
+                    if text_group:
+                        page_items.append(text_group)
                 else:
                     single = self._build_single(data, page_text)
-                    items.append(single)
+                    if single:
+                        page_items.append(single)
 
-            pages.append(Page(page=pno_0 + 1, width=width, height=height, items=items))
-
-        return pages
-
-    def _group_boxes(self, boxes: List) -> List:
-        groups = []
-        current_group: list = []
-
-        for box in boxes:
-            if box["class"] in TEXT_CLASSES:
-                current_group.append(box)
+            page_no = pno + 1
+            existing = pages_by_number.get(page_no)
+            if existing is None:
+                pages_by_number[page_no] = Page(page=page_no, width=width, height=height, items=page_items)
             else:
-                if current_group:
-                    groups.append(("text_group", current_group))
-                    current_group = []
-                groups.append(("single", box))
+                existing.items.extend(page_items)
+                if not existing.width and width:
+                    existing.width = width
+                if not existing.height and height:
+                    existing.height = height
 
-        if current_group:
-            groups.append(("text_group", current_group))
+        return [pages_by_number[p] for p in sorted(pages_by_number)]
+    
+    def _get_page_text(self, item: dict) -> str:
+        for key in ("text", "md", "markdown", "content"):
+            value = item.get(key)
+            if isinstance(value, str) and value:
+                return value
+        return ""
 
-        return groups
+    def _extract_box_text(self, box: dict, page_text: str) -> str:
+        box_text = box.get("text")
+        if isinstance(box_text, str) and box_text.strip():
+            return box_text.strip()
 
-    def _group_boxes(self, boxes: List[dict]) -> List[tuple]:
-        groups: List[tuple] = []
-        current: List[dict] = []
-        for box in boxes:
-            if box["class"] in TEXT_CLASSES:
-                current.append(box)
-            else:
-                if current:
-                    groups.append(("text_group", current))
-                    current = []
-                groups.append(("single", box))
-        if current:
-            groups.append(("text_group", current))
-        return groups
+        pos = box.get("pos")
+        if (
+            isinstance(pos, (list, tuple))
+            and len(pos) == 2
+            and all(isinstance(x, int) for x in pos)
+        ):
+            s, e = pos
+            if 0 <= s <= e <= len(page_text):
+                return page_text[s:e].strip()
 
-    def _build_text_group(self, boxes: List[dict], page_text: str) -> PageItem:
-        children: List[ChildItem] = []
-        contents: List[str] = []
-        for b in boxes:
-            s, e = b["pos"]
-            text = page_text[s:e].strip()
-            contents.append(text)
-            children.append(ChildItem(
-                label=CLASS_MAP.get(b["class"], "paragraph"),
-                bbox=[int(x) for x in b["bbox"]],
-                content=text,
-            ))
-        all_bb = [b["bbox"] for b in boxes]
-        bbox = [
-            int(min(bb[0] for bb in all_bb)), int(min(bb[1] for bb in all_bb)),
-            int(max(bb[2] for bb in all_bb)), int(max(bb[3] for bb in all_bb)),
-        ]
-        return PageItem(
-            label="text", bbox=bbox,
-            content="\n".join(contents), children=children,
-        )
-
-    def _build_single(self, box: dict, page_text: str) -> PageItem:
-        s, e  = box["pos"]
-        text  = page_text[s:e].strip()
-        label = CLASS_MAP.get(box["class"], box["class"])
-
-        if label == "table":
-            text = self._render_md(text)
-
-        return PageItem(
-            label=label,
-            bbox=[int(x) for x in box["bbox"]],
-            content=text or None,
-        )
+        return ""
 
     def _merge_pages(self, pages: List[Page], page_sizes: Dict[int, tuple]) -> List[Page]:
         merged: Dict[int, Page] = {}
@@ -254,3 +220,60 @@ class PyMuPDF4LLMParser(Parser):
                 existing.height = existing.height or height
 
         return [merged[p] for p in sorted(merged)]
+
+    def _group_boxes(self, boxes: List[dict]) -> List[tuple]:
+        groups: List[tuple] = []
+        current: List[dict] = []
+        for box in boxes:
+            if box["class"] in TEXT_CLASSES:
+                current.append(box)
+            else:
+                if current:
+                    groups.append(("text_group", current))
+                    current = []
+                groups.append(("single", box))
+        if current:
+            groups.append(("text_group", current))
+        return groups
+
+    def _build_text_group(self, boxes: List[dict], page_text: str) -> Optional[PageItem]:
+        children: List[ChildItem] = []
+        contents: List[str] = []
+        for b in boxes:
+            text = self._extract_box_text(b, page_text)
+            if not text:
+                continue
+            contents.append(text)
+            children.append(ChildItem(
+                label=CLASS_MAP.get(b["class"], "paragraph"),
+                bbox=[int(x) for x in b["bbox"]],
+                content=text,
+            ))
+        all_bb = [b["bbox"] for b in boxes]
+        bbox = [
+            int(min(bb[0] for bb in all_bb)), int(min(bb[1] for bb in all_bb)),
+            int(max(bb[2] for bb in all_bb)), int(max(bb[3] for bb in all_bb)),
+        ]
+
+        if not contents:
+            return None
+
+        return PageItem(
+            label="text", bbox=bbox,
+            content="\n".join(contents), children=children,
+        )
+
+    def _build_single(self, box: dict, page_text: str) -> Optional[PageItem]:
+        text = self._extract_box_text(box, page_text)
+        if not text:
+            return None
+        
+        label = CLASS_MAP.get(box["class"], box["class"])
+        if label == "table":
+            text = self._render_md(text)
+
+        return PageItem(
+            label=label,
+            bbox=[int(x) for x in box["bbox"]],
+            content=text or None,
+        )
