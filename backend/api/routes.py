@@ -1,16 +1,21 @@
 from __future__ import annotations
 
-import asyncio
+import json
+import traceback
+import tempfile
 from pathlib import Path
-from typing import Annotated
+from collections import defaultdict
+from typing import Annotated, Dict, List, Tuple
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 
-from api.deps import get_rag, get_reflection, get_settings
+from api.deps import get_rag, get_reflection
 from api.schemas import (
     ChatRequest, ChatResponse,
     DeleteRequest,
+    FileIngestResult,
     HealthResponse,
+    IngestFilesResponse,
     IngestRequest, IngestResponse,
     SearchRequest,
 )
@@ -21,25 +26,164 @@ router = APIRouter()
 RagDep = Annotated[RAG, Depends(get_rag)]
 RefDep = Annotated[Reflection, Depends(get_reflection)]
 
+def _item_to_type(label: str) -> str:
+    if label in {"image", "figure", "fig", "picture"}:
+        return "image"
+    if label == "table":
+        return "table"
+    return "text"
+
+def _normalize_item_text(item) -> str:
+    if item.label == "text" and item.children:
+        joined = "\n".join((c.content or "").strip() for c in item.children if (c.content or "").strip())
+        if joined.strip():
+            return joined.strip()
+    text = (item.content or "").strip()
+    if text:
+        return text
+    t = _item_to_type(item.label)
+    if t == "image":
+        return "[IMAGE]"
+    if t == "table":
+        return "[TABLE]"
+    return ""
+
+def _build_structured_chunks(document, filename: str, output_path: Path) -> Tuple[List[str], List[dict]]:
+    """
+    Build chunk list with source mapping into chunkings/*.json.
+    Each record includes file/page/line/type/order/chunk_id.
+    """
+    pages = []
+    for page in document.pages:
+        sortable = sorted(page.items, key=lambda x: (x.bbox[1], x.bbox[0]))
+        ordered = []
+        for idx, item in enumerate(sortable, 1):
+            content = _normalize_item_text(item)
+            if not content:
+                continue
+            ordered.append({
+                "page": page.page,
+                "order_in_page": idx,
+                "type": _item_to_type(item.label),
+                "bbox": item.bbox,
+                "content": content,
+            })
+        if ordered:
+            pages.append({"page": page.page, "items": ordered})
+
+    chunk_dir = output_path / "chunkings"
+    chunk_dir.mkdir(parents=True, exist_ok=True)
+
+    texts: List[str] = []
+    metadatas: List[dict] = []
+    mapping_records: List[dict] = []
+    chunk_counter = 0
+
+    for page_block in pages:
+        page_no = page_block["page"]
+        groups: Dict[str, List[dict]] = defaultdict(list)
+        for item in page_block["items"]:
+            groups[item["type"]].append(item)
+
+        for section_type in ("text", "image", "table"):
+            if not groups[section_type]:
+                continue
+
+            # keep top-down order within each section
+            lines = []
+            item_ranges = []
+            line_cursor = 1
+            for item in groups[section_type]:
+                item_lines = item["content"].splitlines() or [item["content"]]
+                start_line = line_cursor
+                line_cursor += len(item_lines)
+                end_line = line_cursor - 1
+                lines.extend(item_lines)
+                item_ranges.append({
+                    "order_in_page": item["order_in_page"],
+                    "bbox": item["bbox"],
+                    "start_line": start_line,
+                    "end_line": end_line,
+                })
+
+            chunk_text = "\n".join(lines).strip()
+            if not chunk_text:
+                continue
+
+            chunk_counter += 1
+            chunk_id = f"{Path(filename).stem}_p{page_no}_{section_type}_{chunk_counter:04d}"
+            chunk_json_name = f"{chunk_id}.json"
+
+            mapping = {
+                "chunk_id": chunk_id,
+                "file": filename,
+                "page": page_no,
+                "section_type": section_type,
+                "line_start": 1,
+                "line_end": len(lines),
+                "items": item_ranges,
+                "text": chunk_text,
+            }
+            (chunk_dir / chunk_json_name).write_text(
+                json.dumps(mapping, ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
+
+            texts.append(chunk_text)
+            metadatas.append({
+                "source": filename,
+                "page": page_no,
+                "line_start": 1,
+                "line_end": len(lines),
+                "chunk_type": section_type,
+                "chunk_id": chunk_id,
+                "chunk_json": str((chunk_dir / chunk_json_name).as_posix()),
+            })
+            mapping_records.append(mapping)
+
+    # file-level mapping index
+    index_name = f"{Path(filename).stem}_chunk_index.json"
+    (chunk_dir / index_name).write_text(
+        json.dumps({"file": filename, "chunks": mapping_records}, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+
+    return texts, metadatas
+
+async def _parse_upload_document(file: UploadFile):
+    suffix = Path(file.filename or "upload").suffix or ".pdf"
+    content = await file.read()
+
+    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
+        tmp.write(content)
+        tmp_path = Path(tmp.name)
+
+    try:
+        from parser import PyMuPDF4LLMParser
+
+        parser = PyMuPDF4LLMParser(tmp_path)
+        document = await parser.parse_document()
+        return document, parser.output_path
+    finally:
+        tmp_path.unlink(missing_ok=True)
 
 @router.get("/health", response_model=HealthResponse)
 def health(rag: RagDep):
     return HealthResponse(
         db_type=rag.db_type,
         retrieval_mode=rag.retrieval_mode,
-        # Bug fix: access .name via the underlying BaseEmbedding object
         embedding_model=rag.embeddings._model.name,
     )
 
 
 @router.post("/chat", response_model=ChatResponse)
 def chat(req: ChatRequest, rag: RagDep, reflection: RefDep):
-    """Sync endpoint — FastAPI runs in thread pool automatically."""
-    history  = [m.model_dump() for m in req.messages]
+    history = [m.model_dump() for m in req.messages]
     question = history[-1]["content"] if history else ""
 
-    answer = rag.ask(
+    answer, docs = rag.answer_with_docs(
         question,
+        use_rag=req.use_rag,
         use_rerank=req.use_rerank,
         use_hybrid=req.use_hybrid,
         reflection=reflection if req.use_reflection else None,
@@ -47,10 +191,7 @@ def chat(req: ChatRequest, rag: RagDep, reflection: RefDep):
         neo4j_cypher=req.neo4j_cypher,
     )
 
-    sources = []
-    if req.use_rag:
-        docs    = rag.retrieve(question)
-        sources = [{"content": d.page_content, "metadata": d.metadata} for d in docs]
+    sources = [{"content": d.page_content, "metadata": d.metadata} for d in docs]
 
     return ChatResponse(answer=answer, sources=sources)
 
@@ -66,38 +207,43 @@ async def ingest_file(
     rag: RagDep,
     file: UploadFile = File(...),
 ):
-    """
-    Bug fix: parser.parse_document_sync() is CPU/IO-bound.
-    We must NOT call it directly in an async function — that would block
-    the event loop. Instead, use the async API: parser.parse_document()
-    which internally calls asyncio.to_thread(parse_document_sync).
-    (Same pattern as kreuzberg's extract_file() vs extract_file_sync())
-    """
-    import tempfile
-
-    suffix = Path(file.filename or "upload").suffix or ".pdf"
-    content = await file.read()
-
-    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
-        tmp.write(content)
-        tmp_path = Path(tmp.name)
 
     try:
-        from parser import PyMuPDF4LLMParser
-
-        parser = PyMuPDF4LLMParser(tmp_path)
-
-        await parser.parse_document()
-        markdown = parser.to_markdown()
-
-        ids = rag.add_texts([markdown], [{"source": file.filename}])
+        document, output_path = await _parse_upload_document(file)
+        texts, metadatas = _build_structured_chunks(document, file.filename or "unknown", output_path)
+        if not texts:
+            raise HTTPException(status_code=400, detail="Không trích xuất được nội dung từ file")
+        ids = rag.add_texts(texts, metadatas)
         return IngestResponse(ids=ids, count=len(ids))
-
+    except HTTPException:
+        raise
     except Exception as e:
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
-    finally:
-        tmp_path.unlink(missing_ok=True)
 
+@router.post("/ingest/files", response_model=IngestFilesResponse)
+async def ingest_files(
+    rag: RagDep,
+    files: List[UploadFile] = File(...),
+):
+    results: List[FileIngestResult] = []
+    total_ids = 0
+
+    for file in files:
+        try:
+            document, output_path = await _parse_upload_document(file)
+            texts, metadatas = _build_structured_chunks(document, file.filename or "unknown", output_path)
+            if not texts:
+                results.append(FileIngestResult(filename=file.filename or "unknown", ids=[], count=0))
+                continue
+
+            ids = rag.add_texts(texts, metadatas)
+            results.append(FileIngestResult(filename=file.filename or "unknown", ids=ids, count=len(ids)))
+            total_ids += len(ids)
+        except Exception:
+            results.append(FileIngestResult(filename=file.filename or "unknown", ids=[], count=0))
+
+    return IngestFilesResponse(files=results, total_ids=total_ids, total_files=len(files))
 
 @router.post("/search")
 def search(req: SearchRequest, rag: RagDep):

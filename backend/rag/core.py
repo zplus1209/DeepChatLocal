@@ -19,6 +19,8 @@ from rag.router import SemanticRouter
 
 RAG_PROMPT = ChatPromptTemplate.from_template(
     "Bạn là trợ lý AI. Trả lời câu hỏi dựa trên ngữ cảnh.\n"
+    "Chỉ dựa vào tài liệu để trả lời câu hỏi.\n"
+    "Nếu không có hãy trả lời: Thông tin không có trong tài liệu."
     "Nếu không có thông tin, hãy nói rõ.\n\n"
     "Ngữ cảnh:\n{context}\n\n"
     "Câu hỏi: {question}\n\nCâu trả lời:"
@@ -174,36 +176,77 @@ class RAG:
     # Generation
     # ------------------------------------------------------------------
 
+    def _resolve_docs(
+        self,
+        question: str,
+        *,
+        use_rerank: bool = False,
+        use_hybrid: bool = False,
+        neo4j_cypher: Optional[str] = None,
+    ) -> List[Document]:
+        if neo4j_cypher:
+            return self.neo4j_hybrid_retrieve(question, neo4j_cypher)
+        if use_rerank:
+            return self.retrieve_and_rerank(question)
+        if use_hybrid and self.db_type != "qdrant":
+            return self.hybrid_retrieve(question)
+        return self.retrieve(question)
+
+    def answer_with_docs(
+        self,
+        question: str,
+        *,
+        use_rag: bool = True,
+        use_rerank: bool = False,
+        use_hybrid: bool = False,
+        reflection: Optional[Reflection] = None,
+        chat_history: Optional[list] = None,
+        neo4j_cypher: Optional[str] = None,
+    ) -> Tuple[str, List[Document]]:
+        if reflection and chat_history:
+            question = reflection.rewrite(chat_history)
+
+        if self.router and self.router.guide(question) == "chitchat":
+            return self.llm.invoke(question).content, []
+
+        if not use_rag:
+            return self.llm.invoke(question).content, []
+
+        docs = self._resolve_docs(
+            question,
+            use_rerank=use_rerank,
+            use_hybrid=use_hybrid,
+            neo4j_cypher=neo4j_cypher,
+        )
+
+        context = "\n\n".join(d.page_content for d in docs)
+        answer = (RAG_PROMPT | self.llm | StrOutputParser()).invoke(
+            {"context": context, "question": question}
+        )
+
+        return answer, docs
+    
     def ask(
         self,
         question: str,
         *,
+        use_rag: bool = True,
         use_rerank: bool = False,
         use_hybrid: bool = False,
         reflection: Optional[Reflection] = None,
         chat_history: Optional[list] = None,
         neo4j_cypher: Optional[str] = None,
     ) -> str:
-        if reflection and chat_history:
-            question = reflection.rewrite(chat_history)
-
-        if self.router:
-            if self.router.guide(question) == "chitchat":
-                return self.llm.invoke(question).content
-
-        if neo4j_cypher:
-            docs = self.neo4j_hybrid_retrieve(question, neo4j_cypher)
-        elif use_rerank:
-            docs = self.retrieve_and_rerank(question)
-        elif use_hybrid and self.db_type != "qdrant":
-            docs = self.hybrid_retrieve(question)
-        else:
-            docs = self.retrieve(question)
-
-        context = "\n\n".join(d.page_content for d in docs)
-        return (RAG_PROMPT | self.llm | StrOutputParser()).invoke(
-            {"context": context, "question": question}
+        answer, _ = self.answer_with_docs(
+            question,
+            use_rag=use_rag,
+            use_rerank=use_rerank,
+            use_hybrid=use_hybrid,
+            reflection=reflection,
+            chat_history=chat_history,
+            neo4j_cypher=neo4j_cypher,
         )
+        return answer
 
     def as_retriever(self, **kwargs) -> BaseRetriever:
         return self.vector_store.as_retriever(**kwargs)

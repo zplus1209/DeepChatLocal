@@ -48,3 +48,15 @@ class HealthResponse(BaseModel):
     db_type: str
     retrieval_mode: str
     embedding_model: str
+
+
+class FileIngestResult(BaseModel):
+    filename: str
+    ids: List[str]
+    count: int
+
+
+class IngestFilesResponse(BaseModel):
+    files: List[FileIngestResult]
+    total_ids: int
+    total_files: int

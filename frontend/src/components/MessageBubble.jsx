@@ -13,7 +13,7 @@ const Avatar = ({ role }) => (
   </div>
 )
 
-export default function MessageBubble({ message }) {
+export default function MessageBubble({ message, onInspectSources }) {
   const [sourcesOpen, setSourcesOpen] = useState(false)
   const hasSources = message.sources?.length > 0
 
@@ -46,6 +46,12 @@ export default function MessageBubble({ message }) {
         {/* Sources toggle */}
         {hasSources && (
           <div className="w-full">
+            <button
+              onClick={() => onInspectSources && onInspectSources(message.sources)}
+              className="mb-1 text-[11px] text-accent/70 hover:text-accent"
+            >
+              Xem ở panel bên phải
+            </button>
             <button
               onClick={() => setSourcesOpen(v => !v)}
               className="flex items-center gap-1.5 text-xs text-surface-200/50 hover:text-surface-200 transition-colors py-1"
