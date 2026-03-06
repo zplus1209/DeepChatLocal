@@ -19,7 +19,7 @@ def build_llm(
 ) -> BaseChatModel:
     if provider == "ollama":
         from langchain_ollama import ChatOllama
-        return ChatOllama(model=model, base_url=base_url or "http://localhost:11434", **kwargs)
+        return ChatOllama(model=model, **kwargs)
 
     if provider == "vllm":
         from langchain_openai import ChatOpenAI

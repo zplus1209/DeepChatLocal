@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import traceback
 import tempfile
 from pathlib import Path
 from collections import defaultdict
@@ -217,6 +218,7 @@ async def ingest_file(
     except HTTPException:
         raise
     except Exception as e:
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/ingest/files", response_model=IngestFilesResponse)

@@ -19,6 +19,8 @@ from rag.router import SemanticRouter
 
 RAG_PROMPT = ChatPromptTemplate.from_template(
     "Bạn là trợ lý AI. Trả lời câu hỏi dựa trên ngữ cảnh.\n"
+    "Chỉ dựa vào tài liệu để trả lời câu hỏi.\n"
+    "Nếu không có hãy trả lời: Thông tin không có trong tài liệu."
     "Nếu không có thông tin, hãy nói rõ.\n\n"
     "Ngữ cảnh:\n{context}\n\n"
     "Câu hỏi: {question}\n\nCâu trả lời:"
