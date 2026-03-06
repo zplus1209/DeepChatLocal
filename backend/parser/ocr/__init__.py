@@ -38,6 +38,9 @@ def exc_ocr(
     backend: OCRBackend = _build_backend(ocr_backend)
     layout = LayoutPredictor()
 
+    image_dir = output_dir / "images"
+    image_dir.mkdir(parents=True, exist_ok=True)
+
     doc = pymupdf.open(str(pdf_path))
     pages: List[Page] = []
 
@@ -47,8 +50,8 @@ def exc_ocr(
         pix = page.get_pixmap(matrix=mat, alpha=False)
         from PIL import Image
         import numpy as np
-        img = Image.frombytes("RGB", (pix.width, pix.height), pix.samples)
-        bgr = np.array(img)[:, :, ::-1]
+        full_img = Image.frombytes("RGB", (pix.width, pix.height), pix.samples)
+        bgr      = np.array(full_img)[:, :, ::-1]
 
         regions = layout.predict(bgr)
         width, height = page_sizes.get(pno, (pix.width, pix.height))
@@ -56,13 +59,34 @@ def exc_ocr(
         scale_y = height / pix.height
 
         items: List[PageItem] = []
+        img_counter = 0
         for region in regions:
+            bbox_pdf = [
+                int(region.x1 * scale_x), int(region.y1 * scale_y),
+                int(region.x2 * scale_x), int(region.y2 * scale_y),
+            ]
+
             # Skip non-text regions (pictures, etc.)
-            if region.label in {"picture", "image"}:
+            if region.label in {"picture", "image", "figure"}:
+                img_counter += 1
+                img_filename = f"p{pno + 1}_img{img_counter:03d}.png"
+                img_path     = image_dir / img_filename
+
+                x1, y1 = int(region.x1), int(region.y1)
+                x2, y2 = int(region.x2), int(region.y2)
+                crop = full_img.crop((x1, y1, x2, y2))
+
+                try:
+                    crop.save(str(img_path))
+                    rel_path = str(img_path.relative_to(output_dir))
+                except Exception as e:
+                    logger.warning(f"Failed to save image crop p{pno} region {img_counter}: {e}")
+                    rel_path = None
+
                 items.append(PageItem(
                     label="image",
-                    bbox=[int(region.x1 * scale_x), int(region.y1 * scale_y),
-                          int(region.x2 * scale_x), int(region.y2 * scale_y)],
+                    bbox=bbox_pdf,
+                    # content=rel_path,
                 ))
                 continue
 

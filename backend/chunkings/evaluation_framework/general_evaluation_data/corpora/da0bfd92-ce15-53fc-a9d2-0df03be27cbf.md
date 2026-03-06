@@ -1,0 +1,159 @@
+TRƯỜNG ĐẠI HỌC SƯ PHẠM KỸ THUẬT HƯNG YÊN
+**SỐ: 616/QĐ-ĐHSPKTHY**
+
+**Hưng Yên, ngày 19 tháng 5 năm 2020**
+
+# QUY ĐỊNH
+
+**Kiểm tra, thi và đánh giá học phần trong đào tạo trình độ đại học**
+
+(Ban hành kèm theo Quyết định số 616/QĐ-ĐHSKTHY ngày 19 tháng 5 năm 2020 của Hiệu trưởng Trường Đại học Sư phạm Kỹ thuật Hưng Yên)
+
+
+# Chương III
+
+**BIÊN SOẠN, QUẢN LÝ VÀ SỬ DỤNG NGÂN HÀNG ĐỀ THI/CÂU HỎI THI**
+
+**Điều 6. Yêu cầu đối với ngân hàng đề thi/câu hỏi thi**
+
+1. Tùy thuộc vào hình thức thi KTHP đã được phê duyệt, các khoa/bộ môn và giảng viên có thể lựa chọn một trong các dạng thức ngân hàng đề thi/câu hỏi thi sau đây (câu hỏi thi trong ngân hàng có thể là câu hỏi lý thuyết hoặc bài tập):
+
+a) Ngân hàng đề thi/câu hỏi thi tự luận;
+b) Ngân hàng đề thi/câu hỏi thi trắc nghiệm;
+c) Ngân hàng câu hỏi thi vấn đáp;
+d) Ngân hàng các bài tập lớn, câu hỏi thu hoạch, đề tiểu luận, đề đồ án môn học/project,... (sau đây gọi chung là ngân hàng đề thi/câu hỏi thi).
+
+2. Mỗi HP có một ngân hàng đề thi/câu hỏi thi dùng chung cho nhiều lớp cùng học một chương trình đào tạo.
+
+a) Ngân hàng đề thi/câu hỏi thi tự luận có số lượng ít nhất là 10 đề/1 HP (hoặc mỗi tín chỉ cần biên soạn ít nhất 10 câu hỏi).
+b) Ngân hàng câu hỏi thi trắc nghiệm có ít nhất 70 câu hỏi/1 tín chỉ, trong một đề thi có ít nhất 40 câu hỏi.
+c) Ngân hàng đề thi trắc nghiệm kết hợp với tự luận có ít nhất là 10 đề/1 HP (hoặc có số lượng câu hỏi trắc nghiệm và tự luận/1 tín chỉ được tính theo theo tỉ lệ % câu hỏi trắc nghiệm và tự luận trong mỗi đề thi nhân với 70 câu trắc nghiệm hoặc 10 câu tự luận/1 tín chỉ)
+d) Ngân hàng đề thi/câu hỏi thi vấn đáp có ít nhất 20 đề/1 HP (hoặc mỗi tín chỉ có ít nhất 20 câu hỏi).
+e) Những HP dạy chung cho nhiều ngành, nhiều lớp học, số lượng đề thi/câu hỏi thi trong ngân hàng ít nhất gấp 1,5 lần số lượng đề thi/câu hỏi thi được quy định cho mỗi hình thức ở trên.
+
+3. Ngân hàng đề thi/câu hỏi thi phải mang tính tổng hợp, bám sát, bao quát toàn bộ chương trình môn học/HP; phải phù hợp với mục tiêu, chuẩn đầu ra của HP và tiêu chí đánh giá, mức chất lượng quy định trong đề cương chi tiết HP đã công bố; đảm bảo kiểm tra, đánh giá kiến thức và kỹ năng theo các bậc năng lực nhận thức: mục tiêu bậc 1 (nhớ, biết); mục tiêu bậc 2 (hiểu, áp dụng); mục tiêu bậc 3 (phân tích, tổng hợp, đánh giá, sáng tạo: thiết kế, chế tạo, xây dựng, vận dụng trong tình huống mới).
+
+4. Nội dung các câu hỏi trong ngân hàng câu hỏi thi không được trùng nhau; trọng số điểm của các câu hỏi trong cùng nhóm mục tiêu phải thống nhất: mục tiêu bậc 1 trọng số 30%, mục tiêu bậc 2 trọng số 40%, mục tiêu bậc 3 trọng số 30%; các câu hỏi phải phù hợp với ma trận đề thi và thời gian làm bài theo quy định cho mỗi môn
+
+5. Chấm thi vấn đáp do hai giảng viên cùng đánh giá một SV theo tiêu chí và mức chất lượng quy định trong ngân hàng đề và đáp án đã phê duyệt của khoa/bộ môn. Điểm thi vấn đáp được công bố công khai sau mỗi buổi thi. Trong trường hợp hai giảng viên chấm thi không thống nhất được điểm chấm thì trình Trưởng bộ môn quyết định.
+
+# Quy trình biên soạn, rà soát, điều chỉnh ngân hàng đề thi/câu hỏi thi
+
+**thi. Những trường hợp đặc biệt, khoa làm tờ trình báo cáo Hiệu trưởng phê duyệt (thông qua phòng ĐBCL&KT).**
+
+**5. Mỗi đề thi/câu hỏi thi phải kèm theo đáp án. Đáp án trình bày khoa học, ngắn gọn nêu được các yêu cầu cụ thể về kiến thức, kỹ năng người học cần đạt được. Thang điểm của đáp án đề thi tự luận là thang điểm 10. Các ý nhỏ được chấm điểm lẻ đến 0,25 điểm và không quá 1,0 điểm đối với các môn khoa học xã hội, không quá 0,5 điểm đối với các môn khoa học tự nhiên, kỹ thuật. Thang điểm của đáp án đề thi trắc nghiệm và môn thi có đặc thù riêng có thể chấm theo thang điểm khác nhưng khi tổng hợp điểm phải quy ra thang điểm 10.**
+
+**6. Câu hỏi và đáp án trong ngân hàng đề thi/câu hỏi thi phải được trình bày theo đúng mẫu quy định, phù hợp với yêu cầu của từng hình thức thi (do Phòng ĐBCL&KT ban hành).**
+
+**7. Đề đồ án môn học (hoặc project)/tiểu luận/bài tập lớn:**
+
+**a) Trưởng bộ môn tổ chức xem xét, kiểm tra các đề xuất đề tài/chủ đề/nhiệm vụ (gọi chung là đề tài) của giảng viên về các góc độ:**
+
+- Tính khoa học, tính thực tiễn của nhiệm vụ nghiên cứu;
+- Tính khả thi (SV có thể hoàn thành nhiệm vụ trong thời gian quy định);
+- Điều kiện khác (trang bị, cán bộ hướng dẫn, kinh phí, ...);
+- Tính trùng lặp giữa các đề xuất;
+- Chuẩn đầu ra của HP.
+
+**b) Giảng viên chọn số lượng đề tài cần thiết tương xứng với số câu hỏi thi tự luận và đảm bảo mức bao quát toàn bộ hoặc từng phần chính của HP và có thể giao cho một hoặc một nhóm từ 2 đến 3 SV thực hiện. Trường hợp một nhóm SV cùng thực hiện một đề tài thì phải phân định phần nội dung đảm nhiệm cho từng SV trong nhóm.**
+
+**8. Hằng năm, các khoa tiến hành rà soát bộ ngân hàng đề thi/câu hỏi thi, điều chỉnh nội dung, cập nhật thông tin và số liệu, bổ sung câu hỏi và đáp án phù hợp với nội dung chương trình, mục tiêu đào tạo và chuẩn đầu ra.**
+
+**Điều 7. Quy trình biên soạn, rà soát, điều chỉnh ngân hàng đề thi/câu hỏi thi kết thúc học phần**
+
+**1. Trước mỗi năm học, các khoa/bộ môn xây dựng kế hoạch biên soạn mới hoặc rà soát cập nhật, chỉnh sửa, bổ sung bộ ngân hàng đề thi/câu hỏi thi cho phù hợp với việc rà soát chỉnh sửa nội dung chương trình đào tạo của năm học đó (Mẫu 1.1, Phụ lục 1). Trưởng khoa/bộ môn chịu trách nhiệm trước Hiệu trưởng về thời gian hoàn thành, chất lượng ngân hàng đề thi/câu hỏi thi và đáp án; chịu trách nhiệm về tính bảo mật của ngân hàng đề thi/câu hỏi thi.**
+
+**2. Trưởng khoa/bộ môn phân công cho giảng viên (bằng văn bản) và tổ chức thực hiện việc biên soạn mới hoặc rà soát cập nhật, chỉnh sửa, bổ sung bộ ngân hàng đề thi/câu hỏi thi. Việc triển khai thực hiện phải chi tiết, cụ thể đến các bộ môn và giảng viên, bao gồm những công việc sau:**
+
+**a) Xây dựng bảng trọng số đề thi (Mẫu 1.2, Phụ lục 1), ma trận đề thi (Mẫu 1.3, Phụ lục 1), khung cấu trúc ngân hàng câu hỏi thi (Mẫu 1.4, Phụ lục 1) và tổ chức thảo luận, đóng góp ý kiến hoàn thiện các biểu mẫu đó.**
+
+## Điều 7. Biên soạn, thẩm định và nghiệm thu ngân hàng câu hỏi thi
+
+**1. Biên soạn ngân hàng câu hỏi thi:**
+
+a) Trưởng bộ môn/người phụ trách chủ trì biên soạn ngân hàng câu hỏi thi theo đúng
+hướng dẫn của Phòng ĐBCL&KT.
+
+b) Biên soạn ngân hàng câu hỏi thi, tổ hợp đề thi từ ngân hàng câu hỏi và xây
+dựng đáp án theo bảng trọng số và ma trận đề thi (theo hướng dẫn của Phòng
+ĐBCL&KT về kỹ thuật xây dựng ma trận đề thi, biên soạn ngân hàng câu hỏi thi).
+
+c) Tổ chức thẩm định ngân hàng đề thi/câu hỏi thi cùng đáp án chi tiết và thang
+điểm (Mẫu 1.5, Phụ lục 1) theo ma trận đã lập (có văn bản phân công giảng viên thẩm
+định và biên bản thẩm định). Việc thẩm định được thực hiện độc lập với ra đề. Khi
+giảng viên thẩm định không nhất trí với nội dung đề thi/câu hỏi thi dự thảo thì giảng
+viên thẩm định và giảng viên biên soạn dự thảo trao đổi để thống nhất nội dung.
+Trường hợp hai giảng viên không thống nhất được thì Trưởng bộ môn hoặc Tổ trưởng
+Tổ ra đề phân công giảng viên thứ 3 tham gia thẩm định hoặc đưa ra tổ thảo luận.
+
+d) Bộ môn tổ chức nghiệm thu ngân hàng đề thi/câu hỏi thi và đáp án của các
+HP đã biên soạn (có phiếu đánh giá của các thành viên Hội đồng (Mẫu 1.6, Phụ lục 1)
+và biên bản nghiệm thu).
+
+**2. Sau khi đã được nghiệm thu cấp bộ môn, Trưởng bộ môn trực tiếp quản lý,
+lưu trữ, bảo mật ngân hàng đề thi/câu hỏi thi và đáp án để phục vụ công tác chấm thị;
+bàn giao cho cán bộ được phân công quản lý đề thi của Phòng ĐBCL&KT muộn nhất
+trước khi thi 02 tuần, bao gồm bản gốc các loại sau đây:**
+
+a) Bộ đề thi/câu hỏi thi in trên khổ giấy A4 theo quy định, có chữ ký của
+Trưởng bộ môn, người biên soạn hoặc Tổ trưởng Tổ ra đề.
+
+b) Đáp án được Trưởng bộ môn niêm phong tại phòng ĐBCL&KT, sử dụng khi
+phúc khảo/chấm kiểm tra. Đáp án này được mở niêm phong khi có sự chứng kiến của
+phòng ĐBCL&KT và Trưởng ban phúc khảo/ban chấm kiểm tra.
+
+c) File chứa tệp chế bản vi tính của ngân hàng đề thi/câu hỏi thi và đáp án lưu ở
+định dạng PDF và định dạng word có đặt password mở file.
+
+d) Biên bản họp hội đồng khoa về triển khai kế hoạch và phân công cho các bộ
+môn, các giảng viên xây dựng ngân hàng câu hỏi; phiếu thẩm định, biên bản nghiệm
+thu và phiếu đánh giá của các thành viên hội đồng nghiệm thu ngân hàng đề thi/câu
+hỏi thi có đủ chữ ký của các bên liên quan.
+
+**3. Khoa/bộ môn lưu hồ sơ liên quan đến biên soạn ngân hàng câu hỏi thi, bao
+gồm: văn bản hướng dẫn của Trường; biên bản bàn giao ngân hàng đề thi/câu hỏi thi
+cho Phòng ĐBCL&KT; các hồ sơ (bản photocopy) quy định tại điểm d, khoản 3, Điều
+7 của Quy định này.**
+
+## Điều 8. Quản lý, bảo mật ngân hàng đề thi/câu hỏi thi
+
+1. Ngân hàng đề thi/câu hỏi thi được quản lý theo chế độ bảo mật. Khoa/bộ
+môn, giảng viên và các đối tượng có liên quan không được tự ý sao đề thi, bộ câu hỏi
+thi, không được cung cấp cho SV khi chưa được sự đồng ý của Hiệu trưởng.
+
+2. Phòng ĐBCL&KT có trách nhiệm quản lý toàn bộ ngân hàng đề thi/câu hỏi
+thi và đáp án gốc trong tủ đựng có khóa an toàn tại Phòng ĐBCL&KT.
+
+3. Trưởng Phòng ĐBCL&KT có trách nhiệm phân công cụ thể cán bộ của
+Phòng quản lý ngân hàng câu hỏi/đề thi KTHP của các khoa.
+
+4. Các cá nhân được phân công quản lý ngân hàng đề thi/câu hỏi thi có trách
+nhiệm:
+
+a) Thực hiện quản lý theo quy trình bảo mật; kiểm tra, rà soát các bộ đề thi/ngân hàng câu hỏi và đáp án theo quy định của Trường.
+
+b) Lập bảng tổng hợp, thống kê và theo dõi tình hình khai thác sử dụng, điều chỉnh, bổ sung ngân hàng đề thi/câu hỏi thi; nếu có vấn đề phát sinh báo cáo Trưởng phòng xem xét giải quyết.
+
+**Điều 9. Sử dụng ngân hàng đề thi/câu hỏi thi**
+
+1. Cán bộ Phòng ĐBCL&KT được phân công quản lý ngân hàng đề thi/câu hỏi thi có trách nhiệm mã hóa đề thi, lưu trữ, khai thác sử dụng đảm bảo đúng mục đích, yêu cầu của công tác thi, kiểm tra, đánh giá HP và chế độ bảo mật hiện hành.
+
+2. Quy trình khai thác sử sụng ngân hàng đề thi/câu hỏi thi phục vụ kỳ thi
+
+a) Bắt thăm đề thi hoặc tổ hợp đề thi
+- Nhận được kế hoạch thi từ các đơn vị tổ chức đào tạo, Trưởng bộ môn có trách nhiệm bắt thăm ngẫu nhiên đề thi từ ngân hàng đề đã mã hóa trước khi thi từ 5 ngày hành chính trở lên, hoặc cán bộ Phòng ĐBCL&KT tổ hợp đề thi ngẫu nhiên từ ngân hàng câu hỏi (đối với các HP chỉ thiết kế ngân hàng câu hỏi thi).
+- Đối với môn thi tự luận, cần bắt thăm/tổ hợp từ 02 đề thi khác nhau cho mỗi ca thi (nếu buổi thi có từ 02 ca thi trở lên thì số đề thi tỷ lệ thuận với số ca thi).
+- Đối với môn thi vấn đáp, căn cứ số SV dự thi để bắt thăm/tổ hợp ra số lượng đề thi và đáp án cho phù hợp, đảm bảo mỗi SV có một đề thi.
+- Đối với môn thi trắc nghiệm, tổ hợp ít nhất 04 mã khác nhau cho mỗi ca thi.
+
+b) Kiểm tra và duyệt đề thi
+Cán bộ Phòng ĐBCL&KT được phân công nhiệm vụ có trách nhiệm kiểm tra độ chính xác về các thông tin, hình thức trình bày của đề thi gốc, ký xác nhận vào đề thi được tổ hợp từ ngân hàng câu hỏi thi. Đây là đề chính thức được sử dụng để tổ chức thi.
+
+c) In, sao đề thi phục vụ công tác tổ chức thi
+- Từ đề thi chính thức đã được duyệt, cán bộ Phòng ĐBCL&KT có trách nhiệm in, sao đề thi với số lượng cần thiết phục vụ công tác tổ chức thi. Trong quá trình in, sao phải kiểm tra chất lượng bản in.
+- Các đề thi sau khi in xong phải được đóng gói vào túi đựng đề thi và niêm phong, mỗi phòng thi có 01 túi đề, số lượng đề thi trong túi bằng đúng số SV dự thi trên danh sách. Việc in, sao, đóng gói, niêm phong phải đảm bảo chính xác, kịp thời và theo quy trình bảo mật.
+
+d) Bàn giao đề thi cho cho các bên liên quan để tổ chức thi
+- Các HP tổ chức thi ở cơ sở đào tạo nào sẽ nhận đề thi tại cơ sở đó. CBCT1 có trách nhiệm nhận đề thi đúng địa điểm và trước giờ thi theo quy định.
+- Các HP tổ chức thi ở cơ sở liên kết đào tạo ngoài Trường, giao nhận đề thi tại Phòng ĐBCL&KT.
+- Hằng tuần, vào ngày Thứ 2 và Thứ 5, các Trưởng cơ sở Mỹ Hào và Hải Dương hoặc người được trưởng cơ sở ủy quyền sẽ nhận đề thi trực tiếp tại Phòng ĐBCL&KT, đồng thời chịu trách nhiệm bảo quản, bảo mật đề thi đúng quy định.

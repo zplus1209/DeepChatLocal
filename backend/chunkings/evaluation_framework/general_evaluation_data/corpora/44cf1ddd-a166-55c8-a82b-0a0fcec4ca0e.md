@@ -1,0 +1,55 @@
+TRƯỜNG ĐẠI HỌC SƯ PHẠM KỸ THUẬT HƯNG YÊN
+## SỐ: 1001/QĐ-ĐHSPKTHY
+**Hưng Yên, ngày 29 tháng 06 năm 2022**
+
+## QUYẾT ĐỊNH
+
+**Về việc ban hành chương trình đào tạo trình độ thạc sĩ**
+
+
+Căn cứ Luật Giáo dục đại học số 08/2012/QH13 đã được sửa đổi, bổ sung một số điều theo Luật số 32/2013/QH13, Luật số 74/2014/QH13, Luật số 97/2015/QH13 và Luật số 34/2018/QH14 quy định về Nhiệm vụ và quyền hạn của hiệu trưởng cơ sở giáo dục đại học;
+
+Căn cứ Nghị định số 99/2019/NĐ-CP ngày 30 tháng 12 năm 2019 của Chính phủ Quy định chi tiết và hướng dẫn thi hành một số điều luật sửa đổi bổ sung một số điều của Luật giáo dục đại học;
+
+Căn cứ Thông tư số 17/2021/TT-BGDĐT ngày 22/6/2021 của Bộ trưởng Bộ Giáo dục và Đào tạo Ban hành quy định về chuẩn chương trình đào tạo; xây dựng, thẩm định và ban hành chương trình đào tạo các trình độ của giáo dục đại học;
+
+Căn cứ Quy chế tuyển sinh và đào tạo trình độ thạc sĩ ban hành kèm theo Thông tư số 23/2021/TT-BGDĐT ngày 30/08/2021 của Bộ trưởng Bộ Giáo dục và Đào tạo;
+
+Căn cứ Quy chế tuyển sinh và đào tạo trình độ thạc sĩ của Trường Đại học Sư phạm kỹ thuật Hưng Yên ban hành kèm theo Quyết định số 339/QĐ-ĐHSPKT ngày 28/02/2022 của Hiệu trưởng trường Đại học SPKT Hưng Yên;
+
+Theo đề nghị của ông Trưởng phòng Đào tạo.
+
+## QUYẾT ĐỊNH:
+
+**Điều 1.** Ban hành 08 Chương trình đào tạo trình độ thạc sĩ theo định hướng nghiên cứu, áp dụng từ khóa tuyển sinh năm 2022 (có danh sách kèm theo).
+
+**Điều 2.** Quyết định này có hiệu lực kể từ ngày ký. Căn cứ vào chương trình đào tạo đã được ban hành tại Quyết định này, các Khoa có nhiệm vụ hoàn thiện và ban hành toàn bộ đề cương chi tiết của các học phần trong chương trình, tổ chức triển khai thực hiện để đạt được mục tiêu đào tạo.
+
+**Điều 3.** Các ông Trưởng phòng Đào tạo, Trưởng/Phụ trách các khoa, các đơn vị và cá nhân liên quan chịu trách nhiệm thi hành Quyết định này./.
+
+**Nơi nhận:**
+- Như Điều 3 (để thực hiện);
+- Lưu: VT, ĐT.
+
+**(Ký và đóng dấu)**
+
+**HIỆU TRƯỞNG**
+**Bùi Trung Thành**
+
+
+## DANH MỤC CHƯƠNG TRÌNH ĐÀO TẠO TRÌNH ĐỘ THẠC SĨ ĐỊNH HƯỚNG NGHIÊN CỨU ÁP DỤNG TỪ KHÓA TUYỂN SINH NĂM 2022
+
+(Ban hành kèm theo Quyết định số 1001/QĐ-ĐHSPKT, ngày 29 tháng 06 năm 2022)
+
+| STT | Mã ngành | Tên ngành | Chương trình đào tạo |
+|---|---|---|---|
+| 1 | 8520301 | Kỹ thuật hóa học | Kỹ thuật hóa học định hướng nghiên cứu |
+| 2 | 8520103 | Kỹ thuật cơ khí | Kỹ thuật cơ khí định hướng nghiên cứu |
+| 3 | 8520116 | Kỹ thuật cơ khí động lực | Kỹ thuật cơ khí động lực định hướng nghiên cứu |
+| 4 | 8520201 | Kỹ thuật điện | Kỹ thuật điện định hướng nghiên cứu |
+| 5 | 8520203 | Kỹ thuật điện tử | Kỹ thuật điện tử định hướng nghiên cứu |
+| 6 | 8520216 | Kỹ thuật điều khiển và tự động hóa | Kỹ thuật điều khiển và tự động hóa định hướng nghiên cứu |
+| 7 | 8480201 | Công nghệ thông tin | Công nghệ thông tin định hướng nghiên cứu |
+| 8 | 8340101 | Quản trị kinh doanh | Quản trị kinh doanh định hướng nghiên cứu |
+
+**(Danh sách gồm 08 chương trình)**

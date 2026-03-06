@@ -87,7 +87,6 @@ async def ingest_file(
 
         parser = PyMuPDF4LLMParser(tmp_path)
 
-        # ✅ Async call — runs parse_document_sync in thread pool
         await parser.parse_document()
         markdown = parser.to_markdown()
 

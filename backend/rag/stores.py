@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any, Literal, Optional
 
 from langchain_core.embeddings import Embeddings
@@ -80,7 +81,9 @@ def _build_qdrant(
     from qdrant_client import QdrantClient, models
     from qdrant_client.http.models import Distance, SparseVectorParams, VectorParams
 
-    client = QdrantClient(path=qdrant_path or "./qdrant_db")
+    qdrant_dir = Path(qdrant_path or "./qdrant_db").expanduser()
+    qdrant_dir.mkdir(parents=True, exist_ok=True)
+    client = QdrantClient(path=str(qdrant_dir))
 
     existing = [c.name for c in client.get_collections().collections]
     if collection_name not in existing:
