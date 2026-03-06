@@ -1,14 +1,7 @@
 from __future__ import annotations
 
-import re
-from typing import Any, Iterator, List, Literal, Optional
-
-import torch
+from typing import Literal, Optional
 from langchain_core.language_models import BaseChatModel
-from langchain_core.messages import AIMessage, BaseMessage
-from langchain_core.outputs import ChatGeneration, ChatResult
-from pydantic import Field
-from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 
 
 def build_llm(
@@ -17,9 +10,18 @@ def build_llm(
     base_url: Optional[str] = None,
     **kwargs,
 ) -> BaseChatModel:
+
     if provider == "ollama":
         from langchain_ollama import ChatOllama
-        return ChatOllama(model=model, **kwargs)
+        # keep_alive=-1 → model ở lại trong RAM vô thời hạn, không spawn thêm process
+        # num_ctx=4096 → giới hạn context để tránh OOM
+        return ChatOllama(
+            model=model,
+            base_url=base_url or "http://localhost:11434",
+            keep_alive=-1,
+            num_ctx=kwargs.pop("num_ctx", 4096),
+            **kwargs,
+        )
 
     if provider == "vllm":
         from langchain_openai import ChatOpenAI
@@ -32,6 +34,7 @@ def build_llm(
 
     if provider == "huggingface":
         from langchain_huggingface import HuggingFacePipeline
+        from transformers import pipeline
         pipe = pipeline(
             "text-generation",
             model=model,
@@ -50,4 +53,4 @@ def build_llm(
         local_dir = kwargs.pop("local_dir", "./onnx_models")
         return ONNXChatModel(model_path=model, local_dir=local_dir, **kwargs)
 
-    raise ValueError(f"Unsupported provider: {provider}")
+    raise ValueError(f"Provider không hỗ trợ: {provider}")

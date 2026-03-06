@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel
 
-from  utils import get_logger
+from utils import log
 
 # ─────────────────────────── Data models ────────────────────────────────────
 
@@ -69,7 +69,7 @@ class Parser:
     IMAGE_FORMATS  = {".png", ".jpeg", ".jpg", ".bmp", ".tiff", ".tif", ".gif", ".webp"}
     TEXT_FORMATS   = {".txt", ".md"}
 
-    logger = get_logger(__name__)
+    logger = log
 
     def __init__(
         self,

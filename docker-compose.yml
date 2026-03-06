@@ -1,17 +1,38 @@
 version: "3.9"
 
+networks:
+  # Public-facing: chỉ frontend và nginx được expose
+  frontend_net:
+    driver: bridge
+  # Internal-only: backend, ollama, qdrant không expose ra ngoài
+  backend_net:
+    driver: bridge
+    internal: true
+
 services:
 
-  # ── Ollama (local LLM) ────────────────────────────────────────────────────
+  # ── Ollama (LLM local) ─────────────────────────────────────────────────
   ollama:
     image: ollama/ollama:latest
     container_name: deepchat-ollama
+    networks: [backend_net]
     volumes:
       - ollama_data:/root/.ollama
-    ports:
-      - "11434:11434"
+    environment:
+      # Giữ model trong RAM, không spawn thêm process
+      OLLAMA_KEEP_ALIVE: "-1"
+      # Chỉ 1 model loaded tại một thời điểm
+      OLLAMA_MAX_LOADED_MODELS: "1"
+      # Giới hạn parallel requests
+      OLLAMA_NUM_PARALLEL: "1"
     restart: unless-stopped
-    # Uncomment for GPU support:
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    # GPU: bỏ comment nếu có NVIDIA GPU
     # deploy:
     #   resources:
     #     reservations:
@@ -20,36 +41,42 @@ services:
     #           count: all
     #           capabilities: [gpu]
 
-  # ── Backend (FastAPI + RAG) ───────────────────────────────────────────────
+  # ── Backend (FastAPI + RAG) ────────────────────────────────────────────
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: deepchat-backend
+    networks: [backend_net]
     env_file: ./backend/.env
     environment:
       LLM_BASE_URL: http://ollama:11434
       QDRANT_PATH: /data/qdrant_db
     volumes:
       - app_data:/data
+      # Mount thư mục tài liệu nội bộ (cho /ingest/folder)
+      - ${DOCS_PATH:-./docs}:/workspace/docs:ro
     depends_on:
-      - ollama
+      ollama:
+        condition: service_healthy
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 60s
+      start_period: 90s
 
-  # ── Frontend (React + Nginx) ──────────────────────────────────────────────
+  # ── Frontend + Nginx (reverse proxy) ──────────────────────────────────
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: deepchat-frontend
+    networks: [frontend_net, backend_net]
     ports:
-      - "3000:80"
+      # Chỉ expose port này ra internet — backend KHÔNG expose
+      - "${PORT:-3000}:80"
     depends_on:
       backend:
         condition: service_healthy

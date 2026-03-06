@@ -18,19 +18,28 @@ export const api = {
     form.append('file', file)
     return http.post('/ingest/file', form, {
       headers: { 'Content-Type': 'multipart/form-data' },
-      onUploadProgress: e => onProgress && onProgress(Math.round(e.loaded * 100 / e.total)),
+      onUploadProgress: e => onProgress?.(Math.round(e.loaded * 100 / e.total)),
     }).then(r => r.data)
   },
-
 
   ingestFiles: (files, onProgress) => {
     const form = new FormData()
     files.forEach(f => form.append('files', f))
     return http.post('/ingest/files', form, {
       headers: { 'Content-Type': 'multipart/form-data' },
-      onUploadProgress: e => onProgress && onProgress(Math.round(e.loaded * 100 / e.total)),
+      onUploadProgress: e => onProgress?.(Math.round(e.loaded * 100 / e.total)),
     }).then(r => r.data)
   },
+
+  ingestFolder: (folderPath, recursive = true) =>
+    http.post('/ingest/folder', { folder_path: folderPath, recursive }).then(r => r.data),
+
+  scanFolder: (folderPath, recursive = true) =>
+    http.get('/ingest/folder/scan', { params: { folder_path: folderPath, recursive } }).then(r => r.data),
+
+  // Trả về URL để dùng trực tiếp trong <img src="...">
+  pageImageUrl: (filename, page = 1, dpi = 150) =>
+    `/api/v1/page-image?filename=${encodeURIComponent(filename)}&page=${page}&dpi=${dpi}`,
 
   deleteDocuments: (ids) =>
     http.delete('/documents', { data: { ids } }).then(r => r.data),
