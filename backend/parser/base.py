@@ -10,6 +10,7 @@ from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel
 
+from ..utils import get_logger
 
 # ─────────────────────────── Data models ────────────────────────────────────
 
@@ -68,6 +69,8 @@ class Parser:
     IMAGE_FORMATS  = {".png", ".jpeg", ".jpg", ".bmp", ".tiff", ".tif", ".gif", ".webp"}
     TEXT_FORMATS   = {".txt", ".md"}
 
+    logger = get_logger(__name__)
+
     def __init__(
         self,
         file_path: Union[str, Path],
@@ -107,6 +110,23 @@ class Parser:
         if not json_path.exists():
             raise FileNotFoundError(f"Not found: {json_path}")
         return Document(**json.loads(json_path.read_text(encoding="utf-8")))
+
+    @staticmethod
+    def _render_md(md_content: str) -> str:
+        from markdown_it import MarkdownIt
+        from mdit_py_plugins.front_matter import front_matter_plugin
+        from mdit_py_plugins.footnote import footnote_plugin
+
+        md = (
+            MarkdownIt('commonmark', {'breaks':True,'html':True})
+            .use(front_matter_plugin)
+            .use(footnote_plugin)
+            .enable('table')
+        )
+
+        html_text = md.render(md_content)
+
+        return html_text
 
     @classmethod
     def convert_office_to_pdf(

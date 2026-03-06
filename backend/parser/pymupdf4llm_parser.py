@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set
 
+import pymupdf.layout
 import pymupdf
 import pymupdf4llm
 from pymupdf4llm.helpers.check_ocr import should_ocr_page
@@ -15,15 +16,6 @@ from .base import (
 
 
 class PyMuPDF4LLMParser(Parser):
-    """
-    Parser dùng pymupdf4llm với đầy đủ sync và async API.
-
-    Sync  : parse_document_sync() / parse_pdf_sync() / parse_image_sync()
-    Async : parse_document()      / parse_pdf()       / parse_image()
-            ↳ tự động chạy sync version trong asyncio.to_thread (kế thừa từ Parser)
-    """
-
-    # ── Sync implementations ─────────────────────────────────────────────────
 
     def parse_document_sync(self, **kwargs: Any) -> Document:
         ext = self.file_path.suffix.lower()
@@ -46,12 +38,14 @@ class PyMuPDF4LLMParser(Parser):
         all_pages: List[Page] = []
 
         if normal_pages:
+            self.logger.info(f"Page has text_rect: {normal_pages}")
             all_pages.extend(self._run_pymupdf4llm(page_sizes, only_pages=normal_pages, **kwargs))
 
         if ocr_pages:
+            self.logger.info(f"Page need ocr: {ocr_pages}")
             all_pages.extend(self.parse_image_sync(ocr_pages, page_sizes, **kwargs))
 
-        all_pages.sort(key=lambda p: p.page)
+        all_pages = self._merge_pages(all_pages, page_sizes)
 
         document = Document(
             source=str(self.file_path),
@@ -84,8 +78,6 @@ class PyMuPDF4LLMParser(Parser):
             ocr_backend=self.ocr_backend,
             lang=self.lang,
         )
-
-    # ── Markdown export ──────────────────────────────────────────────────────
 
     def to_markdown(
         self, save_md: bool = False, skip_labels: Optional[List[str]] = None
@@ -122,55 +114,76 @@ class PyMuPDF4LLMParser(Parser):
 
         markdown = "".join(parts)
         if save_md:
-            (self.output_path / "content.md").write_text(markdown, encoding="utf-8")
-        return markdown
+            (self.output_path / f"{self.file_stem}.md").write_text(markdown, encoding="utf-8")
 
-    # ── Internal helpers ─────────────────────────────────────────────────────
+        return markdown
 
     def _run_pymupdf4llm(
         self,
         page_sizes: Dict[int, tuple],
-        only_pages: Optional[List[int]] = None,
+        only_pages: List[int] = None,
         **kwargs: Any,
     ) -> List[Page]:
+
         image_dir = self.output_path / "images"
         image_dir.mkdir(parents=True, exist_ok=True)
 
-        md_kwargs: Dict[str, Any] = dict(
+        to_md_kwargs: Dict[str, Any] = dict(
             write_images=True,
             image_path=str(image_dir),
-            show_progress=False,
+            show_progress=True,
             page_chunks=True,
+            ocr_language=self.lang,
         )
-        if only_pages is not None:
-            md_kwargs["pages"] = only_pages
-        # ocr_language is supported in newer pymupdf4llm; skip if not
-        try:
-            md_kwargs.update(kwargs)
-            content_list = pymupdf4llm.to_markdown(str(self.file_path), **md_kwargs)
-        except TypeError:
-            md_kwargs.pop("ocr_language", None)
-            content_list = pymupdf4llm.to_markdown(str(self.file_path), **md_kwargs)
 
-        print(content_list)
+        if only_pages is not None:
+            to_md_kwargs["pages"] = only_pages
+        to_md_kwargs.update(kwargs)
+
+        try:
+            content_list = pymupdf4llm.to_markdown(str(self.file_path), **to_md_kwargs)
+        except TypeError:
+            # Older pymupdf4llm doesn't support ocr_language
+            to_md_kwargs.pop("ocr_language", None)
+            content_list = pymupdf4llm.to_markdown(str(self.file_path), **to_md_kwargs)
 
         pages: List[Page] = []
         for i, item in enumerate(content_list, 1):
-            pno        = item.get("metadata", {}).get("page_number", i) - 1
-            page_text  = item.get("text", "")
-            boxes      = sorted(item.get("page_boxes", []), key=lambda x: x["index"])
-            width, height = page_sizes.get(pno, (0, 0))
+            pno_0 = item.get("metadata", {}).get("page_number", i) - 1
+            page_text = item.get("text", "")
+            boxes = sorted(item.get("page_boxes", []), key=lambda x: x["index"])
+            width, height = page_sizes.get(pno_0, (0, 0))
 
-            page_items: List[PageItem] = []
+            items: List[PageItem] = []
             for gtype, data in self._group_boxes(boxes):
                 if gtype == "text_group":
-                    page_items.append(self._build_text_group(data, page_text))
+                    text_group = self._build_text_group(data, page_text)
+                    items.append(text_group)
                 else:
-                    page_items.append(self._build_single(data, page_text))
+                    single = self._build_single(data, page_text)
+                    items.append(single)
 
-            pages.append(Page(page=pno + 1, width=width, height=height, items=page_items))
+            pages.append(Page(page=pno_0 + 1, width=width, height=height, items=items))
 
         return pages
+
+    def _group_boxes(self, boxes: List) -> List:
+        groups = []
+        current_group: list = []
+
+        for box in boxes:
+            if box["class"] in TEXT_CLASSES:
+                current_group.append(box)
+            else:
+                if current_group:
+                    groups.append(("text_group", current_group))
+                    current_group = []
+                groups.append(("single", box))
+
+        if current_group:
+            groups.append(("text_group", current_group))
+
+        return groups
 
     def _group_boxes(self, boxes: List[dict]) -> List[tuple]:
         groups: List[tuple] = []
@@ -210,10 +223,34 @@ class PyMuPDF4LLMParser(Parser):
         )
 
     def _build_single(self, box: dict, page_text: str) -> PageItem:
-        s, e = box["pos"]
-        text = page_text[s:e].strip()
+        s, e  = box["pos"]
+        text  = page_text[s:e].strip()
+        label = CLASS_MAP.get(box["class"], box["class"])
+
+        if label == "table":
+            text = self._render_md(text)
+
         return PageItem(
-            label=CLASS_MAP.get(box["class"], box["class"]),
+            label=label,
             bbox=[int(x) for x in box["bbox"]],
             content=text or None,
         )
+
+    def _merge_pages(self, pages: List[Page], page_sizes: Dict[int, tuple]) -> List[Page]:
+        merged: Dict[int, Page] = {}
+        for page in pages:
+            existing = merged.get(page.page)
+            if existing is None:
+                width, height = page.width, page.height
+                if not width or not height:
+                    width, height = page_sizes.get(page.page - 1, (width, height))
+                merged[page.page] = Page(page=page.page, width=width, height=height, items=list(page.items))
+                continue
+
+            existing.items.extend(page.items)
+            if (not existing.width or not existing.height):
+                width, height = page_sizes.get(page.page - 1, (existing.width, existing.height))
+                existing.width = existing.width or width
+                existing.height = existing.height or height
+
+        return [merged[p] for p in sorted(merged)]
